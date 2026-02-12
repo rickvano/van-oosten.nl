@@ -437,14 +437,14 @@
 
         <div class="name-row" id="name-row">
           <input type="text" class="name-input" id="name-input" placeholder="Jouw naam" maxlength="16" autocomplete="off" spellcheck="false">
-          <button class="submit-btn" id="submit-btn">Opslaan</button>
+          <button class="submit-btn" id="submit-btn" onclick="window._snakeSubmit && window._snakeSubmit()">Opslaan</button>
         </div>
         <div class="submit-status" id="submit-status"></div>
 
         <div class="divider"></div>
         <div class="leaderboard" id="death-lb"></div>
 
-        <button class="play-btn" id="retry-btn">Opnieuw</button>
+        <button class="play-btn" id="retry-btn" onclick="window._snakeStart && window._snakeStart()">Opnieuw</button>
       </div>
 
       <!-- Leaderboard -->
@@ -482,6 +482,7 @@
   <script>
     (() => {
       'use strict';
+      console.log('[Snake] Script loaded');
 
       // ====== CONFIG ======
       const isMobile = window.matchMedia('(pointer: coarse)').matches;
@@ -1057,6 +1058,12 @@
         lbOverlay.classList.add('hidden');
         startOverlay.classList.remove('hidden');
       });
+
+      // Expose for inline onclick fallback
+      window._snakeSubmit = handleSubmit;
+      window._snakeStart = startGame;
+
+      console.log('[Snake] Handlers registered');
 
       // ====== INIT ======
       if (window.matchMedia('(pointer: fine)').matches) {
