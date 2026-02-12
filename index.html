@@ -437,14 +437,14 @@
 
         <div class="name-row" id="name-row">
           <input type="text" class="name-input" id="name-input" placeholder="Jouw naam" maxlength="16" autocomplete="off" spellcheck="false">
-          <button class="submit-btn" id="submit-btn" onclick="window._snakeSubmit && window._snakeSubmit()">Opslaan</button>
+          <button class="submit-btn" id="submit-btn">Opslaan</button>
         </div>
         <div class="submit-status" id="submit-status"></div>
 
         <div class="divider"></div>
         <div class="leaderboard" id="death-lb"></div>
 
-        <button class="play-btn" id="retry-btn" onclick="window._snakeStart && window._snakeStart()">Opnieuw</button>
+        <button class="play-btn" id="retry-btn">Opnieuw</button>
       </div>
 
       <!-- Leaderboard -->
@@ -482,7 +482,6 @@
   <script>
     (() => {
       'use strict';
-      console.log('[Snake] Script loaded');
 
       // ====== CONFIG ======
       const isMobile = window.matchMedia('(pointer: coarse)').matches;
@@ -894,11 +893,16 @@
       }
 
       document.addEventListener('keydown', (e) => {
+        const active = document.activeElement;
+
         // Let user type in name field
-        if (document.activeElement === nameInput) {
+        if (active === nameInput) {
           if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); }
           return;
         }
+
+        // Don't hijack space/enter when a button is focused
+        if (active && active.tagName === 'BUTTON') return;
 
         if (!alive && (e.key === ' ' || e.key === 'Enter')) {
           e.preventDefault();
@@ -983,7 +987,6 @@
 
       // ====== SUBMIT ======
       async function handleSubmit() {
-        console.log('[Snake] handleSubmit called, score:', score, 'submitted:', submitted);
         if (submitted || score < 1) return;
 
         const name = nameInput.value.trim();
@@ -999,9 +1002,7 @@
         submitStatus.textContent = '';
         saveName(name);
 
-        console.log('[Snake] Posting score:', name, score);
         const result = await postScoreToApi(name, score);
-        console.log('[Snake] Result:', result);
 
         if (result.error) {
           submitStatus.textContent = result.error;
@@ -1032,14 +1033,12 @@
       $('retry-btn').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); startGame(); });
       submitBtn.addEventListener('click', (e) => {
         e.preventDefault(); e.stopPropagation();
-        console.log('[Snake] Submit button clicked');
         handleSubmit();
       });
       // Fallback for mobile where click might not fire
       submitBtn.addEventListener('pointerup', (e) => {
         if (e.pointerType === 'touch') {
           e.preventDefault(); e.stopPropagation();
-          console.log('[Snake] Submit button pointerup (touch)');
           handleSubmit();
         }
       });
@@ -1063,7 +1062,6 @@
       window._snakeSubmit = handleSubmit;
       window._snakeStart = startGame;
 
-      console.log('[Snake] Handlers registered');
 
       // ====== INIT ======
       if (window.matchMedia('(pointer: fine)').matches) {
